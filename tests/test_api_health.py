@@ -1,4 +1,5 @@
 import requests
+from rich import print
 
 BASE_URL = "http://localhost:8000"
 TIMEOUT = 5
