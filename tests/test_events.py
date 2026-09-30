@@ -1,5 +1,5 @@
-import pytest
 import requests
+import pytest
 
 EVENTS_URL = "http://localhost:8000/api/events"
 TIMEOUT = 5
