@@ -20,3 +20,9 @@ requests==2.34.2
 rich==15.0.0
 rpds-py==2026.6.3
 urllib3==2.8.0
+
+### 
+
+# pytest>=8
+# requests>=2.31
+# jsonschema>=4.18
