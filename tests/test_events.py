@@ -1,5 +1,5 @@
-import requests
 import pytest
+import requests
 
 EVENTS_URL = "http://localhost:8000/api/events"
 TIMEOUT = 5
@@ -130,18 +130,3 @@ def test_events_q_trouve_event(transformation):
     sorted_events = requests.get(EVENTS_URL, params=test_params, timeout=TIMEOUT).json()
 
     assert events[0]["id"] in [e["id"] for e in sorted_events]
-
-
-@pytest.mark.parametrize(
-    "test_params, expected_status, expected_length",
-    [
-        ({"city": ""}, 200, 1),
-        ({"city": "Bruxelles"}, 200, 1),
-        ({"city": "bruxelles"}, 200, 0),
-        ({"city": "Alpha"}, 200, 1),
-        ({"city": ""}, 200, 1),
-        ({"city": ""}, 200, 1),
-    ],
-)
-def test_events_requests_city(test_params, expected_status, expected_length):
-    pass
