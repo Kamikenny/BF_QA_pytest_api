@@ -3,7 +3,9 @@
 Il affiche des choses. Il ne dit jamais si c'est correct.
 Le J4 commence ici : on le transforme en tests.
 """
+
 import requests
+from rich import print
 
 BASE_URL = "http://localhost:8000"
 
