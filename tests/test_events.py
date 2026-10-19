@@ -1,13 +1,11 @@
 import pytest
 import requests
-
-EVENTS_URL = "http://localhost:8000/api/events"
-TIMEOUT = 5
+from helpers import TIMEOUT
 
 
-def test_events_structure_is_ok():
+def test_events_structure_is_ok(base_url):
 
-    response = requests.get(EVENTS_URL, timeout=TIMEOUT)
+    response = requests.get(f"{base_url}/api/events", timeout=TIMEOUT)
     events_lst = response.json()
 
     # Check statut et type de contenu conforme
@@ -28,9 +26,9 @@ def test_events_structure_is_ok():
         assert type(event["cover_color"]) == str
 
 
-def test_events_published_only():
+def test_events_published_only(base_url):
 
-    response = requests.get(EVENTS_URL, timeout=TIMEOUT)
+    response = requests.get(f"{base_url}/api/events", timeout=TIMEOUT)
     events_lst = response.json()
 
     assert response.status_code == 200, response.json()["detail"]
@@ -39,9 +37,9 @@ def test_events_published_only():
         assert event["status"] == "published"
 
 
-def test_events_response_not_empty():
+def test_events_response_not_empty(base_url):
 
-    response = requests.get(EVENTS_URL, timeout=TIMEOUT)
+    response = requests.get(f"{base_url}/api/events", timeout=TIMEOUT)
     assert response.status_code == 200
 
     assert len(response.json()) > 0
@@ -66,9 +64,9 @@ def test_events_response_not_empty():
         "Int negatif",
     ],
 )
-def test_event_id_requests(event_id, expected_code):
+def test_event_id_requests(base_url, event_id, expected_code):
 
-    response = requests.get(EVENTS_URL + f"/{event_id}", timeout=TIMEOUT)
+    response = requests.get(f"{base_url}/api/events" + f"/{event_id}", timeout=TIMEOUT)
 
     assert response.status_code == expected_code, response.text
 
@@ -92,13 +90,10 @@ def test_event_id_requests(event_id, expected_code):
         "params vide",
     ],
 )
-def test_events_requests_q(test_params, expected_status, is_empty):
-    response = requests.get(EVENTS_URL, params=test_params, timeout=TIMEOUT)
+def test_events_requests_q(base_url, test_params, expected_status, is_empty):
+    response = requests.get(f"{base_url}/api/events", params=test_params, timeout=TIMEOUT)
 
-    assert (
-        response.status_code == expected_status
-        and (len(response.json()) == 0) == is_empty
-    )
+    assert response.status_code == expected_status and (len(response.json()) == 0) == is_empty
 
 
 @pytest.mark.parametrize(
@@ -114,8 +109,8 @@ def test_events_requests_q(test_params, expected_status, is_empty):
         "Mot minuscules",
     ],
 )
-def test_events_q_trouve_event(transformation):
-    response = requests.get(EVENTS_URL, timeout=TIMEOUT)
+def test_events_q_trouve_event(base_url, transformation):
+    response = requests.get(f"{base_url}/api/events", timeout=TIMEOUT)
     assert response.status_code == 200, "La requête a échoué. Test impossible"
 
     events = response.json()
@@ -127,6 +122,8 @@ def test_events_q_trouve_event(transformation):
         "q": transformation(mot),
     }
 
-    sorted_events = requests.get(EVENTS_URL, params=test_params, timeout=TIMEOUT).json()
+    sorted_events = requests.get(
+        f"{base_url}/api/events", params=test_params, timeout=TIMEOUT
+    ).json()
 
     assert events[0]["id"] in [e["id"] for e in sorted_events]

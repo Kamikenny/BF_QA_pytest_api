@@ -70,6 +70,7 @@ Un test fait la même requête, mais il **porte un jugement**. Exemple sur l'end
 
 ```python
 """Exemple du cours (section 1) : un endpoint technique, trois dimensions vérifiées."""
+
 import requests
 
 BASE_URL = "http://localhost:8000"
@@ -136,7 +137,7 @@ Ce test resterait vert si l'API renvoyait :
 Un bon test API vérifie plusieurs **dimensions**, selon ce qui compte pour ce endpoint :
 
 | Dimension | Question | Exemple |
-|---|---|---|
+| --- | --- | --- |
 | Statut HTTP | La requête a-t-elle abouti comme prévu ? | `200`, `201`, `404`... |
 | Format | Est-ce bien ce qu'on attend comme type de contenu ? | `content-type` JSON |
 | Structure | La forme de la réponse est-elle correcte ? | une liste, des champs présents et bien typés |
@@ -188,12 +189,13 @@ def test_id_inexistant():
     response = requests.get(f"{BASE_URL}/api/events/999999", timeout=TIMEOUT)
     assert response.status_code == 404, response.text
 
+
 def test_id_texte():
     response = requests.get(f"{BASE_URL}/api/events/abc", timeout=TIMEOUT)
     assert response.status_code == 422, response.text
 
-def test_id_decimal():
-    ...  # et ainsi de suite
+
+def test_id_decimal(): ...  # et ainsi de suite
 ```
 
 Le jour où la façon d'appeler l'API change, il faut corriger chaque copie. Et en lisant le fichier, on ne voit pas d'un coup d'œil **quels cas** sont couverts.
@@ -340,7 +342,7 @@ Le test échoue alors pour une raison qui n'a rien à voir avec ce qu'il vérifi
 C'est une vraie compétence de testeur de faire la différence entre :
 
 | « Je connais une règle stable » | « Je suppose une donnée » |
-|---|---|
+| --- | --- |
 | Une commande est limitée à 6 billets (règle métier documentée) | L'événement n°1 existe |
 | Le catalogue public ne montre que les events publiés | La catégorie VIP de tel event a encore 5 places |
 | Un id mal formé est refusé en 422 | Il y a exactement 4 événements |
@@ -362,7 +364,7 @@ Réponse honnête : **oui, parfois une fonction est le meilleur choix.** Une fix
 Une fixture devient intéressante quand vous voulez que PyTest :
 
 | Besoin | Exemple EventFlow |
-|---|---|
+| --- | --- |
 | **injecte** la préparation par son nom | `def test_x(base_url, events)` |
 | la **partage** selon un scope | un seul login pour toute la session (cet après-midi) |
 | la **compose** avec d'autres préparations | `events` a besoin de `base_url` |
@@ -380,7 +382,7 @@ Un bon indice : si la chose n'a **ni cycle de vie, ni dépendances, ni besoin de
 On a maintenant quatre notions à ne pas confondre :
 
 | Notion | Rôle | Où la mettre |
-|---|---|---|
+| --- | --- | --- |
 | **Configuration** | ce qui change selon l'environnement (URL, identifiants) | variable d'environnement, lue par une fixture |
 | **Constante** | valeur fixe partagée (`TIMEOUT`) | `helpers.py` |
 | **Helper** | fonction ordinaire qui calcule ou transforme | `helpers.py` |
@@ -436,7 +438,7 @@ Se lit : « un objet, qui doit contenir `id`, `title` et `city` ; `id` est un en
 Les mots-clés les plus utiles :
 
 | Mot-clé | Sens | Exemple |
-|---|---|---|
+| --- | --- | --- |
 | `type` | type JSON attendu | `"object"`, `"array"`, `"string"`, `"integer"`, `"number"`, `"boolean"`, `"null"` |
 | `required` | champs obligatoires d'un objet | `["id", "title"]` |
 | `properties` | le schéma de chaque champ | `{"id": {"type": "integer"}}` |
@@ -534,7 +536,7 @@ Une seule ligne vérifie maintenant **chaque champ de chaque événement** du ca
 C'est la distinction la plus importante de cette section.
 
 | JSON Schema vérifie **le contrat** | Les assertions PyTest vérifient **le fonctionnel** |
-|---|---|
+| --- | --- |
 | la structure (objet, liste) | les règles métier |
 | les champs requis | la cohérence entre plusieurs valeurs |
 | les types | que c'est le **bon** résultat pour **cette** requête |
@@ -543,8 +545,8 @@ C'est la distinction la plus importante de cette section.
 Exemple sur le détail d'un événement :
 
 ```python
-validate(instance=detail, schema=EVENT_DETAIL_SCHEMA)   # contrat : structure, types
-assert detail["available"] <= detail["capacity"]        # métier : le schéma ne le voit pas
+validate(instance=detail, schema=EVENT_DETAIL_SCHEMA)  # contrat : structure, types
+assert detail["available"] <= detail["capacity"]  # métier : le schéma ne le voit pas
 ```
 
 Le schéma peut dire que `available` et `capacity` sont des entiers positifs. Il ne sait pas dire que l'un doit être inférieur à l'autre. De même, le schéma peut dire que `status` vaut `draft`, `published` ou `archived` (les valeurs possibles, c'est du contrat) ; mais « le catalogue **public** ne montre que des events `published` » est une **règle métier**, qui reste une assertion.
@@ -562,8 +564,8 @@ Un testeur vérifie donc que son schéma **sait dire non** : on prend une vraie 
 ```python
 from jsonschema import ValidationError
 
-mutant = dict(event)          # une copie : on ne modifie pas la vraie donnée
-del mutant["title"]           # on retire un champ requis
+mutant = dict(event)  # une copie : on ne modifie pas la vraie donnée
+del mutant["title"]  # on retire un champ requis
 
 with pytest.raises(ValidationError):
     validate(instance=mutant, schema=EVENT_SCHEMA)
@@ -596,8 +598,7 @@ Deux besoins distincts, deux outils :
 
 ```python
 @pytest.fixture(scope="session")
-def auth_headers(base_url):
-    ...  # appelle login(...) avec les identifiants du client du seed
+def auth_headers(base_url): ...  # appelle login(...) avec les identifiants du client du seed
 ```
 
 Remarquez la **composition** : `auth_headers` demande `base_url`. PyTest résout la chaîne tout seul.
@@ -634,9 +635,11 @@ Un bon test de création suit ce fil :
 
 1. **Données** : récupérer ce dont on a besoin (event, catégorie avec du stock) sans rien supposer (section 3.5).
 2. **Payload** : construire le corps de la requête. Pour EventFlow :
+
    ```json
    {"event_id": 3, "items": [{"category_id": 8, "quantity": 2}], "promo_code": "WELCOME10"}
    ```
+
    (`promo_code` est facultatif, les valeurs ici sont un exemple.)
 3. **Envoi** : `POST /api/orders` authentifié.
 4. **Statut** : `201 Created` pour une création réussie.
@@ -654,7 +657,7 @@ L'**oracle**, c'est ce qui permet de dire si le résultat est correct. Regardez 
 ```python
 commande = response.json()
 total_attendu = commande["total_cents"]
-assert commande["total_cents"] == total_attendu     # ❌
+assert commande["total_cents"] == total_attendu  # ❌
 ```
 
 Il ne peut **jamais** échouer : il compare la réponse à elle-même. Même avec un total faux, il est vert.
@@ -662,8 +665,10 @@ Il ne peut **jamais** échouer : il compare la réponse à elle-même. Même ave
 Un oracle indépendant **calcule** l'attendu à partir de données connues et de la règle :
 
 ```python
-total_attendu = categorie["price_cents"] * quantite     # prix lu dans le catalogue, règle de calcul connue
-assert commande["total_cents"] == total_attendu          # ✅
+total_attendu = (
+    categorie["price_cents"] * quantite
+)  # prix lu dans le catalogue, règle de calcul connue
+assert commande["total_cents"] == total_attendu  # ✅
 ```
 
 Les montants EventFlow sont en **centimes entiers** (`price_cents`, `total_cents`) : `3500` signifie 35,00 €.
@@ -689,7 +694,7 @@ On vérifie ici le comportement **à travers l'API**. On ne regarde pas directem
 Les règles métier d'EventFlow qui concernent la commande :
 
 | Règle | Énoncé |
-|---|---|
+| --- | --- |
 | RM1 | On ne vend jamais plus de places que le stock disponible. |
 | RM3 | Maximum six billets par commande. |
 | RM4 | Un code promo a un nombre d'usages maximum et une date d'expiration. |
@@ -697,7 +702,7 @@ Les règles métier d'EventFlow qui concernent la commande :
 Quand une commande est refusée, l'API choisit un statut. Ne les apprenez pas par cœur : **raisonnez**.
 
 | Statut | Question à se poser | Idée |
-|---|---|---|
+| --- | --- | --- |
 | **422** | La requête est-elle **mal formée** ? | champ manquant, mauvais type : FastAPI refuse avant même d'appliquer les règles |
 | **400** | La requête est bien formée, mais une **règle** l'interdit ? | on demande quelque chose que le métier refuse |
 | **404** | Une **ressource désignée** n'existe pas ? | on référence quelque chose d'introuvable |
@@ -763,8 +768,9 @@ CAS_QUANTITES = load_json("data/order_quantities.json")
 
 
 @pytest.mark.parametrize("cas", CAS_QUANTITES, ids=[c["cas"] for c in CAS_QUANTITES])
-def test_quantite_sur_une_ligne(base_url, auth_headers, cas):
-    ...  # utilise cas["quantity"], vérifie cas["expected_status"]
+def test_quantite_sur_une_ligne(
+    base_url, auth_headers, cas
+): ...  # utilise cas["quantity"], vérifie cas["expected_status"]
 ```
 
 - `load_json` est la fonction de la section 4.4 : le fichier est lu une fois, au chargement du module de test.
@@ -804,7 +810,7 @@ Un test qui passe et échoue de façon imprévisible s'appelle un test **flaky**
 ### 7.3 Quelles stratégies ?
 
 | Stratégie | Idée | Dans EventFlow |
-|---|---|---|
+| --- | --- | --- |
 | Réinitialiser la base avant chaque test | repartir de zéro | possible mais lourd (redémarrage, reseed), pas par test |
 | Nettoyer après le test via l'API | supprimer ce qu'on a créé | **impossible pour les commandes : l'API n'a pas de DELETE** |
 | Créer des données neuves pour chaque test | chaque test a son propre terrain | **possible** : un organisateur peut créer un événement dédié |
@@ -896,7 +902,7 @@ Et la limite, à dire honnêtement : **le teardown n'efface rien.** EventFlow n'
 ### 7.5 Scope et données mutables
 
 | Préparation | Les tests la modifient ? | Scope logique |
-|---|---|---|
+| --- | --- | --- |
 | `base_url` | non | `session` |
 | `auth_headers` | non | `session` |
 | `events` (catalogue lu) | non, mais il **change** au fil des tests | `function` (défaut) |
@@ -928,7 +934,7 @@ def test_regle_respectee(...):
 ```
 
 | Situation | Résultat | Sens |
-|---|---|---|
+| --- | --- | --- |
 | le bug est toujours là (le test échoue) | `xfailed` | échec attendu et documenté : la suite reste lisible |
 | le bug est corrigé (le test passe) | **`XPASS(strict)` → FAILED** | la suite vous prévient : retirez le marker, le test redevient un test normal |
 
@@ -953,8 +959,7 @@ Avant de lancer une campagne complète, ou juste après un déploiement, on veut
 
 ```python
 @pytest.mark.smoke
-def test_un_parcours_essentiel(base_url):
-    ...
+def test_un_parcours_essentiel(base_url): ...
 ```
 
 Un marker se déclare dans `pytest.ini` :
@@ -970,7 +975,7 @@ markers =
 Avec `--strict-markers`, une faute de frappe (`@pytest.mark.smok`) provoque une **erreur** au lieu de créer silencieusement un marker que personne ne sélectionne.
 
 | Commande | Usage |
-|---|---|
+| --- | --- |
 | `pytest -m smoke` | ne lancer que les tests marqués `smoke` |
 | `pytest -m "not smoke"` | tout sauf eux |
 | `pytest -v` | un test par ligne, avec son nom complet (et ses `ids`) |
@@ -1012,7 +1017,7 @@ def test_ce_que_ca_verifie(base_url, auth_headers, donnees_preparees):
 ### Endpoints EventFlow utilisés aujourd'hui
 
 | Méthode | Route | Accès |
-|---|---|---|
+| --- | --- | --- |
 | GET | `/api/health` | public |
 | GET | `/api/events` (`q`, `city`) | public |
 | GET | `/api/events/{id}` | public |
