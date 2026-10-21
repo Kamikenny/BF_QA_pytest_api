@@ -1,0 +1,42 @@
+{
+	"type": "object",
+	"required": [
+		"id",
+		"event_id",
+		"status",
+		"total_cents",
+		"created_at",
+		"expires_at"
+	],
+	"properties": {
+		"id": {
+			"type": "integer"
+		},
+		"event_id": {
+			"type": "integer"
+		},
+		"status": {
+			"type": "string",
+			"enum": [
+				"confirmed",
+				"pending",
+				"cancelled"
+			]
+		},
+		"total_cents": {
+			"type": "integer",
+			"minimum": 1
+		},
+		"created_at": {
+			"type": "string",
+			"pattern": "^(\\d{4})-([0-1]\\d)-([0-3]\\d)"
+		},
+		"expires_at": {
+			"type": "string",
+			"pattern": "^(\\d{4})-([0-1]\\d)-([0-3]\\d)"
+		},
+		"items": {
+			"type": "array"
+		}
+	}
+}

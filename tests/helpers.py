@@ -3,6 +3,7 @@ from pathlib import Path
 
 import requests
 
+TIMEOUT = 5
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -11,7 +12,7 @@ def load_json(relative_path):
         return json.load(f)
 
 
-def login(base_url: str, email: str, password: str):
+def login(base_url: str, email: str, password: str) -> dict:
     payload = {
         "username": email,
         "password": password,
@@ -23,7 +24,4 @@ def login(base_url: str, email: str, password: str):
 
     if response.status_code == 200:
         return response.json()
-    return response.text
-
-
-print(login("http://localhost:8000", "client@eventflow.test", "client1234"))
+    return {"error": response.text}
